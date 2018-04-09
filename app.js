@@ -19,26 +19,29 @@ window.cancelRequestAnimFrame = (function() {
     clearTimeout
 })();
 
+
+
 let c = canvas.getContext('2d');
 
 canvas.width = 800;
 canvas.height = 400;
 W = canvas.width;
 H = canvas.height;
+points = 0,
 particles = [], // Array containing particles
 ball = {}, // Ball object
 paddles = [2], // Array containing two paddles
 mouse = {}; // Object to store mouse position
 
 // Add mousemove and mousedown events to the canvas
-  canvas.addEventListener("mousemove", trackPosition, true);
+canvas.addEventListener("mousemove", trackPosition, true);
 // canvas.addEventListener("mousedown", btnClick, true);
 
 
 // Track the position of mouse cursor
 function trackPosition(e) {
   mouse.x = e.pageX;
-  mouse.y = e.pageY-110;
+  mouse.y = e.pageY - 110;
 }
 
 
@@ -46,31 +49,28 @@ function trackPosition(e) {
 if (mouse.y) {
   for (var i = 1; i < paddles.length; i++) {
     p = paddles[i];
-    p.y = (mouse.y - p.h/2);
+    p.y = (mouse.y - p.h / 2);
   }
 }
 
 
+// Ball object
+ball = {
+  x: 10,
+  y: 50,
+  r: 5,
+  c: "white",
+  vx: 4,
+  vy: 6,
 
-
-
-  // Ball object
-  ball = {
-    x: 50,
-    y: 50,
-    r: 5,
-    c: "white",
-    vx: 4,
-    vy: 8,
-
-    // Function for drawing ball on canvas
-    draw: function() {
-      c.beginPath();
-      c.fillStyle = this.c;
-      c.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
-      c.fill();
-    }
-  };
+  // Function for drawing ball on canvas
+  draw: function() {
+    c.beginPath();
+    c.fillStyle = this.c;
+    c.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+    c.fill();
+  }
+};
 
 
 // Function for creating paddles
@@ -92,10 +92,8 @@ paddles.push(new Paddle("right"));
 // Draw everything on canvas
 function draw() {
   c.clearRect(0, 0, 800, 400);
-  // paintCanvas();
   for (var i = 0; i < paddles.length; i++) {
     p = paddles[i];
-
     c.fillStyle = "blue";
     c.fillRect(p.x, p.y, p.w, p.h);
   }
@@ -110,29 +108,43 @@ function animloop() {
   draw();
 }
 
+// Move the ball
+ball.x += ball.vx;
+ball.y += ball.vy;
 
-// If the ball strikes with paddles,
-// invert the x-velocity vector of ball,
-// increment the points, play the collision sound,
-// save collision's position so that sparks can be
-// emitted from that position, set the flag variable,
-// and change the multiplier
-
+// Collision with paddles
+p1 = paddles[1];
+p2 = paddles[2];
 
 //Function to check collision between ball and one of
 //the paddles
 function collides(b, p) {
-  if (b.x + ball.r >= p.x && b.x - ball.r <= p.x + p.w) {
-    if (b.y >= (p.y - p.h) && p.y > 0) {
-      paddleHit = 1;
+  if (b.y + ball.r >= p.y && b.y - ball.r <= p.y + p.h) {
+    if (b.x >= (p.x - p.w) && p.x > 0) {
       return true;
-    } else if (b.y <= p.h && p.y == 0) {
-      paddleHit = 2;
+    } else if (b.x <= p.w && p.x == 0) {
       return true;
     } else return false;
   }
 }
 
+function collideAction(ball, p) {
+  ball.vx = -ball.vx;
+  ball.vy = -ball.vy;
+  points++;
+}
+
+// Function to run when the game overs
+function gameOver() {
+	c.fillStlye = "white";
+	c.font = "20px Arial, sans-serif";
+	c.textAlign = "center";
+	c.textBaseline = "middle";
+	c.fillText("Game Over - You scored "+points+" points!", W/2, H/2 + 25 );
+
+	// Stop the Animation
+	cancelRequestAnimFrame(init);
+}
 
 function update() {
 
@@ -140,21 +152,13 @@ function update() {
   ball.x += ball.vx;
   ball.y += ball.vy;
 
-  // if (ball.x + ball.r > 800 || ball.x - ball.r < 0) {
-  //   gameOver();
-  // }
-
   if (ball.x + ball.r > 800 || ball.x - ball.r < 0) {
-    ball.vx = -ball.vx;
+    gameOver();
   }
 
   if (ball.y + ball.r > 400 || ball.y - ball.r < 0) {
     ball.vy = -ball.vy;
   }
-
-  ball.x += ball.vx;
-  ball.y += ball.vy;
-
 
   if (mouse.x && mouse.y) {
     for (var i = 1; i < paddles.length; i++) {
@@ -162,88 +166,16 @@ function update() {
       p.y = mouse.y;
     }
   }
+
+  // If the ball strikes with paddles,
+  // invert the x-velocity vector of ball,
+  // increment the points
+
+  if (collides(ball, p1)) {
+    collideAction(ball, p1);
+  } else if (collides(ball, p2)) {
+    collideAction(ball, p2);
+  }
 }
 
 animloop();
-
-
-
-
-
-
-
-// //Do this when collides == true
-// function collideAction(ball, p) {
-//   ball.vy = -ball.vy;
-//
-//   if (paddleHit == 1) {
-//     ball.y = p.y - p.h;
-//     particlePos.y = ball.y + ball.r;
-//     multiplier = -1;
-//   } else if (paddleHit == 2) {
-//     ball.y = p.h + ball.r;
-//     particlePos.y = ball.y - ball.r;
-//     multiplier = 1;
-//   }
-// }
-
-
-// let x = 400;
-// let y = 200;
-// let dy = (Math.random() - 0.5) * 10;
-// let dx = (Math.random() - 0.5) * 10;
-// let radius = 6;
-//
-//
-// // Circle Two
-// let x2 = 200;
-// let y2 = 200;
-// let dy2 = (Math.random() - 0.5) * 5;
-// let dx2 = (Math.random() - 0.5) * 5;
-// let radius2 = 6;
-
-
-
-// function animate() {
-//   requestAnimationFrame(animate);
-//   c.clearRect(0, 0, 800, 400);
-//
-//   c.beginPath();
-//   c.strokeStyle = "black";
-//   c.arc(x, y, radius, 0, Math.PI * 2, false);
-//   c.stroke();
-//   c.fillStyle = "black";
-//   c.fill();
-//
-//   c.beginPath();
-//   c.strokeStyle = "black";
-//   c.arc(x2, y2, radius2, 0, Math.PI * 2, false);
-//   c.stroke();
-//   c.fillStyle = "white";
-//   c.fill();
-//
-//   if (x + radius > 800 || x - radius < 0) {
-//     dx = -dx;
-//   }
-//
-//   if (y + radius > 400 || y - radius < 0) {
-//     dy = -dy;
-//   }
-//
-//   x += dx;
-//   y += dy;
-//
-//
-//   if (x2 + radius2 > 800 || x2 - radius2 < 0) {
-//     dx2 = -dx2;
-//   }
-//
-//   if (y2 + radius2 > 400 || y2 - radius2 < 0) {
-//     dy2 = -dy2;
-//   }
-//
-//   x2 += dx2;
-//   y2 += dy2;
-// }
-//
-// animate();
