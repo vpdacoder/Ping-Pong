@@ -1,7 +1,18 @@
 body {
   margin:0;
   text-align: center;
+  font-family: 'Gugi', cursive;
 }
+
+
+#rally {
+  color:red;
+}
+
+#pong {
+  color: grey;
+}
+
 canvas {
     padding-left: 0;
     padding-right: 0;

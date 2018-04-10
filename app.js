@@ -22,20 +22,17 @@ window.cancelRequestAnimFrame = (function() {
 
 
 let c = canvas.getContext('2d');
-
 canvas.width = 800;
 canvas.height = 400;
 W = canvas.width;
 H = canvas.height;
-points = 0,
-particles = [], // Array containing particles
-ball = {}, // Ball object
-paddles = [2], // Array containing two paddles
-mouse = {}; // Object to store mouse position
+  points = 0,
+  ball = {}, // Ball object
+  paddles = [2], // Array containing two paddles
+  mouse = {}; // Object to store mouse position
 
 // Add mousemove and mousedown events to the canvas
 canvas.addEventListener("mousemove", trackPosition, true);
-// canvas.addEventListener("mousedown", btnClick, true);
 
 
 // Track the position of mouse cursor
@@ -128,25 +125,58 @@ function collides(b, p) {
   }
 }
 
-function collideAction(ball, p) {
+function action(ball, p) {
+
   ball.vx = -ball.vx;
   ball.vy = -ball.vy;
   points++;
+  increaseSpd();
+
+  if (collision) {
+    if (points > 0)
+      collision.pause();
+
+    collision.currentTime = 0;
+    collision.play();
+  }
+}
+
+// function for posting live score
+function updateScore() {
+  c.fillStlye = "white";
+  c.font = "16px Arial, sans-serif";
+  c.textAlign = "left";
+  c.textBaseline = "top";
+  c.fillText("Score: " + points, 20, 20);
 }
 
 // Function to run when the game overs
 function gameOver() {
-	c.fillStlye = "white";
-	c.font = "20px Arial, sans-serif";
-	c.textAlign = "center";
-	c.textBaseline = "middle";
-	c.fillText("Game Over - You scored "+points+" points!", W/2, H/2 + 25 );
+  c.fillStlye = "white";
+  c.font = "20px Arial, sans-serif";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText("Game Over - You scored " + points + " points!", W / 2, H / 2 + 25);
 
-	// Stop the Animation
-	cancelRequestAnimFrame(init);
+
+  // Stop the Animation
+  cancelRequestAnimFrame(init);
+}
+
+// Function to increase speed after every 3 points
+function increaseSpd() {
+  if (points % 2 == 0) {
+    if (Math.abs(ball.vx) < 10) {
+      ball.vx += (ball.vx > 0) ? .5 : -.5;
+      ball.vy += (ball.vy > 0) ? 1 : -1;
+    }
+  }
 }
 
 function update() {
+
+  // Update scores
+  updateScore();
 
   // Move the ball
   ball.x += ball.vx;
@@ -172,10 +202,11 @@ function update() {
   // increment the points
 
   if (collides(ball, p1)) {
-    collideAction(ball, p1);
+    action(ball, p1);
   } else if (collides(ball, p2)) {
-    collideAction(ball, p2);
+    action(ball, p2);
   }
+
 }
 
 animloop();
