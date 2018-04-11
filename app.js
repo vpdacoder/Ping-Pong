@@ -13,7 +13,7 @@ H = canvas.height;
   mouse = {}; // Object to store mouse position
 
 // Add mousemove events to the canvas
-canvas.addEventListener("mousemove", trackPos, true);
+canvas.addEventListener("mousemove", trackPos);
 
 
 // Track the position of mouse cursor
