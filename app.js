@@ -1,16 +1,18 @@
 //To draw on Canvas
 let c = canvas.getContext('2d');
 
+//Globals
 canvas.width = 800;
 canvas.height = 400;
 W = canvas.width;
 H = canvas.height;
+
   points = 0,
   ball = {}, // Ball object
   paddles = [], // Array containing two paddles
   mouse = {}; // Object to store mouse position
 
-// Add mousemove and mousedown events to the canvas
+// Add mousemove events to the canvas
 canvas.addEventListener("mousemove", trackPos, true);
 
 
@@ -168,7 +170,7 @@ function update() {
   }
 
   // If the ball strikes with paddles,
-  // invert the x-velocity vector of ball,
+  // invert the x-velocity and y-velocity of ball,
   // increment the points
 
   if (collides(ball, p1)) {
