@@ -1,42 +1,21 @@
-// RequestAnimFrame: a browser API for getting smooth animations
-window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback) {
-      return window.setTimeout(callback, 1000 / 60);
-    };
-})();
-
-window.cancelRequestAnimFrame = (function() {
-  return window.cancelAnimationFrame ||
-    window.webkitCancelRequestAnimationFrame ||
-    window.mozCancelRequestAnimationFrame ||
-    window.oCancelRequestAnimationFrame ||
-    window.msCancelRequestAnimationFrame ||
-    clearTimeout
-})();
-
-
-
+//To draw on Canvas
 let c = canvas.getContext('2d');
+
 canvas.width = 800;
 canvas.height = 400;
 W = canvas.width;
 H = canvas.height;
   points = 0,
   ball = {}, // Ball object
-  paddles = [2], // Array containing two paddles
+  paddles = [], // Array containing two paddles
   mouse = {}; // Object to store mouse position
 
 // Add mousemove and mousedown events to the canvas
-canvas.addEventListener("mousemove", trackPosition, true);
+canvas.addEventListener("mousemove", trackPos, true);
 
 
 // Track the position of mouse cursor
-function trackPosition(e) {
+function trackPos(e) {
   mouse.x = e.pageX;
   mouse.y = e.pageY - 110;
 }
@@ -44,7 +23,7 @@ function trackPosition(e) {
 
 // Move the paddles on mouse move
 if (mouse.y) {
-  for (var i = 1; i < paddles.length; i++) {
+  for (var i = 0; i < paddles.length; i++) {
     p = paddles[i];
     p.y = (mouse.y - p.h / 2);
   }
@@ -101,7 +80,7 @@ function draw() {
 
 // Function for running the whole animation
 function animloop() {
-  init = requestAnimFrame(animloop);
+  start = requestAnimationFrame(animloop);
   draw();
 }
 
@@ -110,8 +89,8 @@ ball.x += ball.vx;
 ball.y += ball.vy;
 
 // Collision with paddles
-p1 = paddles[1];
-p2 = paddles[2];
+p1 = paddles[0];
+p2 = paddles[1];
 
 //Function to check collision between ball and one of
 //the paddles
@@ -130,15 +109,7 @@ function action(ball, p) {
   ball.vx = -ball.vx;
   ball.vy = -ball.vy;
   points++;
-  increaseSpd();
-
-  if (collision) {
-    if (points > 0)
-      collision.pause();
-
-    collision.currentTime = 0;
-    collision.play();
-  }
+  spd();
 }
 
 // function for posting live score
@@ -150,7 +121,7 @@ function updateScore() {
   c.fillText("Score: " + points, 20, 20);
 }
 
-// Function to run when the game overs
+// Function to run when the games over
 function gameOver() {
   c.fillStlye = "white";
   c.font = "20px Arial, sans-serif";
@@ -158,13 +129,12 @@ function gameOver() {
   c.textBaseline = "middle";
   c.fillText("Game Over - You scored " + points + " points!", W / 2, H / 2 + 25);
 
-
   // Stop the Animation
-  cancelRequestAnimFrame(init);
+  cancelAnimationFrame(start);
 }
 
 // Function to increase speed after every 3 points
-function increaseSpd() {
+function spd() {
   if (points % 2 == 0) {
     if (Math.abs(ball.vx) < 10) {
       ball.vx += (ball.vx > 0) ? .5 : -.5;
@@ -191,7 +161,7 @@ function update() {
   }
 
   if (mouse.x && mouse.y) {
-    for (var i = 1; i < paddles.length; i++) {
+    for (var i = 0; i < paddles.length; i++) {
       p = paddles[i];
       p.y = mouse.y;
     }
