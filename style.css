@@ -27,3 +27,7 @@ canvas {
 h1 {
   text-align: center;
 }
+
+#hideCursor {
+  cursor: none;
+}
